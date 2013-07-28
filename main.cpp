@@ -1,91 +1,80 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
-
-/* Set event */
-bool setEvent(sf::RenderWindow&, sf::Event&);
+#include <ctime>
+#include <cstdlib>
 
 int main(int argc, char** argv) {
-	// Player dimensions
-/*
-	const unsigned short PLAYER_WIDTH = 32;
-	const unsigned short PLAYER_HEIGHT = 32;
+	sf::Vector2i screenDimensions(600, 442);
 
-	float frameCounter = 0, switchFrame = 100, frameSpeed = 500;
-	bool updateFrame = true;
-*/
-
-	sf::RenderWindow window(sf::VideoMode(400, 342), "Title from function!");
-	window.setKeyRepeatEnabled(false);
+	sf::RenderWindow window(sf::VideoMode(screenDimensions.x, screenDimensions.y), "SFML tutorial");
 
 	sf::Texture texture;
-	sf::Sprite player;
+	sf::Sprite image;
+
+	if (!texture.loadFromFile("Resources/texture.jpg")) {
+		std::cout << "cannot load texture" << std::endl;
+	}
+
+	image.setTexture(texture);
+	image.setScale(1.0f, (float)screenDimensions.y / texture.getSize().y);
+
+	sf::RectangleShape rect(sf::Vector2f(20, 20));
+	rect.setFillColor(sf::Color::Green);
+
 	sf::Clock clock;
+	float moveSpeed = 10000.0f;
 
-/*
-	enum direction {Down, Left, Right, Up};
-	sf::Vector2i source(0, Down);
+	sf::View view;
+	view.reset(sf::FloatRect(0, 0, screenDimensions.x, screenDimensions.y));
+	view.setViewport(sf::FloatRect(0, 0, 1.0f, 1.0f)); // display full view
 
-	texture.loadFromFile("Resources/image.png");
-	player.setTexture(texture);
-*/
-
-	sf::RectangleShape rect(sf::Vector2f(100, 100));
+	sf::Vector2f position(screenDimensions.x / 2, screenDimensions.y / 2);
 
 	while (window.isOpen()) {
+		clock.restart();
+
 		sf::Event event;
-		while (setEvent(window, event)) {
+		while (window.pollEvent(event)) {
 			switch (event.type) {
 			case sf::Event::Closed:
 				window.close();
 				break;
+
 			default:
 				break;
 			}
 		}
 
-		/*
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
-			source.y = Right;
-			player.move(0.1, 0);
+			rect.move(moveSpeed * clock.restart().asSeconds(), 0);
 		} else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
-			source.y = Left;
-			player.move(-0.1, 0);
-		} else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-			source.y = Up;
-			player.move(0, -0.1);
-		} else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
-			source.y = Down;
-			player.move(0, 0.1);
+			rect.move(-moveSpeed * clock.restart().asSeconds(), 0);
 		}
 
-		if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
-			updateFrame = true;
-		} else if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
-			updateFrame = false;
-		}
+		/*
+		position.x = rect.getPosition().x + 10 - (screenDimensions.x / 2);
+		position.y = rect.getPosition().y + 10 - (screenDimensions.y / 2);
 
-		frameCounter = updateFrame == true
-				? frameCounter + frameSpeed * clock.restart().asSeconds()
-				: 0;
-
-		if (frameCounter >= switchFrame) {
-			frameCounter = 0;
-			if (++source.x > 2) {
-				source.x = 0;
-			}
-		}
-
-		player.setTextureRect(sf::IntRect(source.x * PLAYER_WIDTH, source.y * PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT));
+		if (position.x < 0)
+			position.x = 0;
+		if (position.y < 0)
+			position.y = 0;
 		*/
 
+		if (rect.getPosition().x + 10 > screenDimensions.x / 2)
+			position.x = rect.getPosition().x + 10;
+		else
+			position.x = screenDimensions.x / 2;
+
+		//view.reset(sf::FloatRect(position.x, position.y, screenDimensions.x, screenDimensions.y));
+		view.setCenter(position);
+
+		window.setView(view);
+		window.draw(image);
 		window.draw(rect);
 		window.display();
 		window.clear(sf::Color(66, 66, 66));
 	}
 
 	return EXIT_SUCCESS;
-}
-
-bool setEvent(sf::RenderWindow& window, sf::Event& event) {
-	return window.pollEvent(event);
 }
