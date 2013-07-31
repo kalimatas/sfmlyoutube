@@ -1,5 +1,6 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
+#include <SFML/Network.hpp>
 #include <ctime>
 #include <cstdlib>
 
